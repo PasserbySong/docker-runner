@@ -1,0 +1,45 @@
+﻿#!/bin/bash
+
+source ~/.bash_profile
+deploy_path="../$1"
+if [ ! -d "$deploy_path/$2" ]
+then
+		mkdir -p $deploy_path
+		cd $deploy_path
+		project_path="git@gitlab.szkedun.cn:"$1/$2".git"
+		echo "ready to clone "$project_path
+		git clone $project_path
+		cd $2
+else
+		cd $deploy_path/$2
+		echo "ready to pull"
+		git checkout develop
+		git pull
+fi
+echo "开始使用maven构建项目"
+mvn clean install
+echo "构建完毕!"
+mkdir -p target/docker
+cp dockerfile-staging/Dockerfile target/docker/
+cp target/$2.jar target/docker/
+cd target/docker
+echo "停止旧版本容器"$2
+docker stop $2
+echo "删除旧版本容器"$2
+docker rm $2
+echo "删除镜像"$2
+docker rmi $2
+echo "开始构建容器"$2
+docker build -t $2 .
+echo "容器"$2"构建完成，启动容器..."
+if [ ! -n "$4" ] 
+then
+	docker run -d -p $3:$3 -v /home/logs/$1/$2/:/home/gitlab-runner/logs/$2/ -v /etc/localtime:/etc/localtime:ro --name $2 $2 "--registration.ip=121.201.107.77" "--eureka.instance.hostname=121.201.107.77"
+else
+echo "schedule - $4"
+	docker run -d -p $3:$3 -p $4:$4 -v /home/logs/$1/$2/:/home/gitlab-runner/logs/$2/ -v /etc/localtime:/etc/localtime:ro --name $2 $2 "--registration.ip=121.201.107.77" "--eureka.instance.hostname=121.201.107.77"
+fi
+#docker run -d -p $3:$3 --name $2 $2 "--registration.ip=121.201.107.77" "--eureka.instance.hostname=121.201.107.77"
+echo "删除所有<none>:<none>容器"
+docker rmi $(docker images -f "dangling=true" -q)
+echo "部署成功!!!"

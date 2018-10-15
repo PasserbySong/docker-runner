@@ -1,0 +1,57 @@
+﻿#!/bin/bash
+
+source ~/.bash_profile
+deploy_path="../$1"
+if [ ! -d "$deploy_path/$2" ]
+then
+                mkdir -p $deploy_path
+                cd $deploy_path
+                project_path="git@gitlab.szkedun.cn:"$1/$2".git"
+                echo "ready to clone "$project_path
+                git clone $project_path
+                cd $2
+        git pull
+        git checkout -B now $3
+else
+        cd $deploy_path/$2
+        echo "ready to checkout "$3
+	git checkout  src/vuex/store.js
+        git pull
+        git checkout -B now $3
+fi
+echo "开始替换项目文件内容"
+sed -i '8s/^.*$/state: testState,/g' src/vuex/store.js
+sed -n 24p src/vuex/store.js
+echo "替换完成，开始使用cnpm构建项目"
+cnpm install
+chmod -R 777 node_modules
+cnpm run build
+echo "项目构建完毕，开始打包项目"
+cd dist
+tar cvf $2.tar.gz *
+echo "打包完毕，开始构建docker"
+rm -rf docker
+mkdir -p docker
+mv $2.tar.gz docker/$2.tar.gz
+cp ../dockerfile-staging/Dockerfile docker/
+cp $2.tar.gz docker/
+cp ../dockerfile-staging/supervisord.conf docker/
+cp ../dockerfile-staging/default docker/
+cd docker
+echo "停止旧版本容器"$2
+docker stop $2
+echo "删除旧版本容器"$2
+docker rm $2
+echo "删除镜像"$2
+docker rmi $2
+echo "开始构建容器"$2
+docker build -t $2 .
+echo "容器"$2"构建完成，启动容器..."
+if [ ! -n "$5" ] 
+then
+        docker run -d -p $4:$4 -v /etc/localtime:/etc/localtime:ro --name $2 $2 
+else
+echo "第5个参数 - $5"
+        docker run -d -p $4:$4 -p $5:$5 -v /etc/localtime:/etc/localtime:ro --name $2 $2
+fi
+echo "部署成功!!!"

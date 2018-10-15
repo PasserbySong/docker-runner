@@ -1,0 +1,18 @@
+docker run -d -v /var/run/docker.sock:/var/run/docker.sock \
+-v /usr/bin/docker:/usr/bin/docker \
+-v /usr/bin/docker-containerd:/usr/bin/docker-containerd \
+-v /usr/bin/docker-containerd-current:/usr/bin/docker-containerd-current \
+-v /usr/bin/docker-containerd-shim:/usr/bin/docker-containerd-shim \
+-v /usr/bin/docker-containerd-shim-current:/usr/bin/docker-containerd-shim-current \
+-v /usr/bin/docker-ctr-current:/usr/bin/docker-ctr-current \
+-v /usr/bin/docker-current:/usr/bin/docker-current \
+-v /usr/bin/dockerd:/usr/bin/dockerd \
+-v /usr/bin/dockerd-current:/usr/bin/dockerd-current \
+-v /usr/bin/docker-storage-setup:/usr/bin/docker-storage-setup \
+-v /etc/sysconfig/docker:/etc/sysconfig/docker \
+-v /etc/sysconfig/docker-network:/etc/sysconfig/docker-network \
+-v /etc/sysconfig/docker-storage:/etc/sysconfig/docker-storage \
+-v /etc/sysconfig/docker-storage-setup:/etc/sysconfig/docker-storage-setup \
+-v /home/data/maven/repository:/home/gitlab-runner/maven/repository \
+--name kd-git-runner \
+--privileged kd-git-runner

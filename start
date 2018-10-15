@@ -1,0 +1,1 @@
+chown -R gitlab-runner:gitlab-runner /home/gitlab-runner
