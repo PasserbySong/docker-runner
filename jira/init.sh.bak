@@ -1,0 +1,8 @@
+#!/bin/bash
+
+
+source /home/.bash_profile
+
+echo "source /home/.bash_profile" 
+
+sh /home/jira/atlassian-jira-software-7.12.1-standalone/bin/start-jira.sh -fg
