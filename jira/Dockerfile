@@ -29,7 +29,9 @@ COPY jira7.3.zip /home/data
 # œ¬‘ÿjira
 # -----------------------------------------------------------------------------
 
-ADD atlassian-jira-software-7.12.1.tar.gz /home/jira
+RUN cd /home/jira && wget https://product-downloads.atlassian.com/software/jira/downloads/atlassian-jira-software-7.12.1.tar.gz &&  tar -zxvf atlassian-jira-software-7.12.1.tar.gz 
+
+#ADD atlassian-jira-software-7.12.1.tar.gz /home/jira
 RUN wget http://central.maven.org/maven2/mysql/mysql-connector-java/5.1.42/mysql-connector-java-5.1.42.jar 
 RUN \
 	# cd /home/jira && tar -zxvf atlassian-jira-software-7.12.1.tar.gz && \
